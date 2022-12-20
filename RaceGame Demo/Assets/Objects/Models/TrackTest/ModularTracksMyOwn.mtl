@@ -1,0 +1,13 @@
+# Blender MTL File: 'Modular_Track_Roads_FREE_SKETCHFAB.blend'
+# Material Count: 1
+
+newmtl Trek_Material_free
+Ns 323.999994
+Ka 0.100000 0.100000 0.100000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+map_Kd C:\\Users\\tjeer\\Desktop\\Objects\\Racetrackmodules\\textures\\Track_Texture.png
