@@ -4,7 +4,6 @@ using UnityEngine;
 using UnityEditor;
 using System.IO;
 
-
 public class GhostMovement : MonoBehaviour
 {
 
@@ -16,7 +15,7 @@ public class GhostMovement : MonoBehaviour
     [SerializeField] string path;
 
     private StreamReader reader;
-
+    
     // Use this for initialization
     void Start()
     {
@@ -28,12 +27,17 @@ public class GhostMovement : MonoBehaviour
     private void FixedUpdate()
     {
         string newpos = reader.ReadLine();
-        char[] seperator = { '/' };
-        string[] vectors = newpos.Split(seperator);
+        if(newpos != null)
+        {
+            char[] seperator = { '/' };
+            string[] vectors = newpos.Split(seperator);
 
-        this.transform.position = StringToVector3(vectors[1]);
-        this.transform.rotation = StringToQuat(vectors[2]);
+            this.transform.position = StringToVector3(vectors[1]);
+            this.transform.rotation = StringToQuat(vectors[2]);
+            frontLeftTransform.rotation = StringToQuat(vectors[3]);
+            frontRightTransform.rotation = StringToQuat(vectors[4]);
 
+        }
     }
 
     public static string[] StringSplit(string sVector)
@@ -66,10 +70,19 @@ public class GhostMovement : MonoBehaviour
     public static Quaternion StringToQuat(string s)
     {
         // split the items
-        Debug.Log("vector " + s);
+        //Debug.Log("String: " + s);
+        //Quaternion quat = Quaternion.Parse(s);
         string[] sArray = StringSplit(s);
-        Quaternion quat = Quaternion.Euler(float.Parse(sArray[0]), float.Parse(sArray[1]), float.Parse(sArray[2]));
-        Debug.Log("quat " + quat);
+        //float x = float.Parse(sArray[0]);
+        //float y = float.Parse(sArray[1]);
+        //float z = float.Parse(sArray[2]);
+        //float w = float.Parse(sArray[3]);
+        //Debug.Log("X:" + x);
+        //Debug.Log("Y:" + y);
+        //Debug.Log("Z:" + z);
+        //Debug.Log("W:" + w);
+        Quaternion quat = new Quaternion(float.Parse(sArray[0]), float.Parse(sArray[1]), float.Parse(sArray[2]), float.Parse(sArray[3]));
+        //Debug.Log("Quat: " + quat);
         return quat;   
     }
 }

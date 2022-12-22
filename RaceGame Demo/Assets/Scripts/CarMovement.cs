@@ -18,7 +18,7 @@ public class CarMovement : MonoBehaviour
     [SerializeField] Transform backRightTransform;
     [SerializeField] Transform backLeftTransform;
 
-    [SerializeField] string path;
+    [SerializeField] string ghostSavePath;
 
     // Start is called before the first frame update
     public float maxSpeed = 15f;
@@ -26,7 +26,6 @@ public class CarMovement : MonoBehaviour
     public float breakingForce = 300f;
     public float maxTurnAngle = 15f;
     public float downForce = -1000f;
-
 
     private float currentAcceleration = 0f;
     private float currentBreakForce = 0f;
@@ -36,8 +35,7 @@ public class CarMovement : MonoBehaviour
 
     void Start()
     {
-        Application.targetFrameRate = 60;
-        writer = new StreamWriter(path, false);
+        writer = new StreamWriter(ghostSavePath, false);
         
     }
 
@@ -53,8 +51,8 @@ public class CarMovement : MonoBehaviour
         frontRight.motorTorque = currentAcceleration;
         frontLeft.motorTorque = currentAcceleration;
 
-        //frontRight.brakeTorque = currentBreakForce;
-        //frontLeft.brakeTorque = currentBreakForce;
+        frontRight.brakeTorque = currentBreakForce;
+        frontLeft.brakeTorque = currentBreakForce;
         backRight.brakeTorque = currentBreakForce;
         backLeft.brakeTorque = currentBreakForce;
 
@@ -81,23 +79,17 @@ public class CarMovement : MonoBehaviour
     {
         writer.WriteLine(Time.frameCount + "/" +
                         this.transform.position + "/" +
-                        this.transform.rotation);
-        //+ "/" + 
-        //                frontLeftTransform.rotation + "/" +
-        //                frontRightTransform.rotation);
+                        this.transform.rotation + "/" +
+                        frontLeftTransform.rotation + "/" +
+                        frontRightTransform.rotation);
         writer.Flush();
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        //Debug.Log("Object that collided with me: " + other.gameObject.name);
-        //WriteFramePos();
-        //string path = "Assets/Resources/TxtGhosts/Ghost1.txt";
-        //Write some text to the test.txt file
-        //StreamWriter writer = new StreamWriter(path, true);
-        //writer.WriteLine(other.gameObject.name + " passed on frame " + Time.frameCount);
-        //writer.Close();
+        if(other.gameObject.tag == "Checkpoint" || other.gameObject.tag == "Finish")
+        {
+            CheckpointTimes.checkpoints.UpdateCheckpointTimes(other);
+        }
     }
-
-
 }
