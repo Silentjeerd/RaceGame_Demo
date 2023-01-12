@@ -13,20 +13,15 @@ public class CloudBehavior : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        moveCloud();
-        if (Time.frameCount % GameManager.Instance.rainfallFrameDelay == 0) produceRain();
-
-    }
-
-    private void moveCloud()
-    {
         transform.position += GameManager.Instance.getWindDirection() * Time.deltaTime;
+        //if (Time.frameCount % GameManager.Instance.rainfallFrameDelay == 0) produceRain();
+
     }
 
     private void produceRain()
     {
 
-        GameObject rain = (GameObject)GameObject.Instantiate(Resources.Load("Prefabs/Raindrop"));
+        GameObject rain = (GameObject)GameObject.Instantiate(Resources.Load("Prefabs/Quad"));
         rain.transform.position = this.transform.position;
        // transform.position
     }

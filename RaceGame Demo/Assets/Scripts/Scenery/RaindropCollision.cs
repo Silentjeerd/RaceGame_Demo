@@ -14,9 +14,9 @@ public class RaindropCollision : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        rainScale = new Vector3(0.1f, 0.1f, 0.1f);
+        //rainScale = new Vector3(0.1f, 0.1f, 0.1f);
         rainMesh = raindropMesh.mesh;
-        transform.localScale = rainScale;
+        //transform.localScale = rainScale;
         gameObject.GetComponent<MeshRenderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
         covertToFaces();
     }
@@ -25,7 +25,7 @@ public class RaindropCollision : MonoBehaviour
     void Update()
     {
         transform.position += (Vector3.down * 3f) * Time.deltaTime;
-        if (transform.position.y <= 0) Destroy(this.gameObject);
+        //if (transform.position.y <= 0) Destroy(this.gameObject);
     }
 
     private void covertToFaces()
@@ -48,17 +48,17 @@ public class RaindropCollision : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        int randomDrops = Random.Range(10, 40);
-        //for (int i = 0; i < randomDrops; i++)
-        //{
-        //    GameObject explosiveFace = new GameObject();
-        //    explosiveFace.transform.position += transform.position;
-        //    explosiveFace.transform.localScale = rainScale;
-        //    explosiveFace.AddComponent<MeshFilter>().mesh = faceMeshes[i];
-        //    explosiveFace.AddComponent<MeshRenderer>();
-        //    explosiveFace.GetComponent<MeshRenderer>().material = gameObject.GetComponent<MeshRenderer>().material;
-        //    explosiveFace.AddComponent<rainDroplet>(); //add movementscript.
-        //}
-        Destroy(this.gameObject);
+        int randomDrops = Random.Range(2, faceMeshes.Length);
+        for (int i = 0; i < randomDrops; i++)
+        {
+            GameObject explosiveFace = new GameObject();
+            explosiveFace.transform.position += transform.position;
+            //explosiveFace.transform.localScale = rainScale;
+            explosiveFace.AddComponent<MeshFilter>().mesh = faceMeshes[i];
+            explosiveFace.AddComponent<MeshRenderer>().material = gameObject.GetComponent<MeshRenderer>().material;
+            //explosiveFace.GetComponent<MeshRenderer>().material = gameObject.GetComponent<MeshRenderer>().material;
+            explosiveFace.AddComponent<rainDroplet>(); //add movementscript.
+        }
+        //Destroy(this.gameObject);
     }
 }
