@@ -29,7 +29,7 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        windDirection = new Vector3(1f, 0f, 0f);
+        windDirection = new Vector3(2f, 0f, 2f);
         rainfallFrameDelay = 20;
         Application.targetFrameRate = 60;
         if (!UseUserInput)
