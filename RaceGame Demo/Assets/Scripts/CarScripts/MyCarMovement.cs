@@ -19,17 +19,19 @@ public class MyCarMovement : MonoBehaviour
     [SerializeField] Transform backRightTransform;
     [SerializeField] Transform backLeftTransform;
 
-    [SerializeField] string ghostSavePath;
+    string ghostSavePath;
 
     public float maxSpeed = 15f;
     public float acceleration = 500f;
-    public float breakingForce = 300f;
+    public float breakingForce = 500f;
     public float maxTurnAngle = 30f;
     public float downForce = -1000f;
+    private float driftStiffness = 0.5f;
 
     private float currentAcceleration = 0f;
     private float currentBreakForce = 0f;
     private float currentTurnAngle = 0f;
+    private float currentStiffness = 2f;
 
     private StreamWriter writer;
 
@@ -65,20 +67,33 @@ public class MyCarMovement : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        controller = GetComponent<CarController>();
-        if (controller != null && controller.UseUserInput)
+        if (GameManager.Instance.settings.playerInput)
+        {
+            this.name = "Player";
+            GameObject.Find("Sensors").SetActive(false);
+            Restart();
+        }
+    }
+
+    public void Restart()
+    {
+        if (GameManager.Instance.settings.saveGhost)
+        {
+            ghostSavePath = GameManager.Instance.settings.ghostFilePath + GameManager.Instance.settings.ghostFolder + gameObject.name + ".txt";
+            Debug.Log("saving to: " + ghostSavePath);
             writer = new StreamWriter(ghostSavePath, false);
+        }
     }
 
     private void FixedUpdate()
     {
         carBody.AddForce(0, downForce, 0);
-        if (controller != null && controller.UseUserInput)
+        if (GameManager.Instance.settings.playerInput)
             CheckInput();
 
         ApplyInput();
 
-        if (controller != null && controller.UseUserInput)
+        if (GameManager.Instance.settings.saveGhost)
             WriteFramePos();
     }
 
@@ -88,6 +103,7 @@ public class MyCarMovement : MonoBehaviour
         horizontalInput = Input.GetAxis("Horizontal");
         verticalInput = Input.GetAxis("Vertical");
         if (Input.GetKey(KeyCode.Space)) currentBreakForce = breakingForce; else currentBreakForce = 0f;
+        //if (Input.GetKey(KeyCode.Space)) currentStiffness = driftStiffness; else currentStiffness = 2f;
     }
 
     /// <summary>
@@ -117,9 +133,19 @@ public class MyCarMovement : MonoBehaviour
         currentTurnAngle = maxTurnAngle * horizontalInput;
         frontLeft.steerAngle = currentTurnAngle;
         frontRight.steerAngle = currentTurnAngle;
+        //backRight.steerAngle = -currentTurnAngle;
+        //backLeft.steerAngle = -currentTurnAngle;
+        //WheelFrictionCurve frictionCruve = backRight.sidewaysFriction;
+        //frictionCruve.stiffness = currentStiffness;
+        //backRight.sidewaysFriction = frictionCruve;
+        //backLeft.sidewaysFriction = frictionCruve;
+        //frontLeft.sidewaysFriction = frictionCruve;
+        //frontRight.sidewaysFriction = frictionCruve;
 
         UpdateWheel(frontLeft, frontLeftTransform);
         UpdateWheel(frontRight, frontRightTransform);
+        //UpdateWheel(backLeft, backLeftTransform);
+        //UpdateWheel(backRight, backRightTransform);
     }
 
 
@@ -140,19 +166,15 @@ public class MyCarMovement : MonoBehaviour
                         this.transform.rotation + "/" +
                         frontLeftTransform.rotation + "/" +
                         frontRightTransform.rotation);
-        writer.Flush();
+        
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        //if (controller.UseUserInput && (other.gameObject.tag == "Checkpoint" || other.gameObject.tag == "Finish"))
-        //{
-        //    CheckpointTimes.checkpoints.UpdateCheckpointTimes(other);
-        //}
         if (other.gameObject.tag == "Checkpoint" || other.gameObject.tag == "Finish")
         {
-            CheckpointTimes.Instance.UpdateCheckpointTimes(other);
-            controller.CheckpointCaptured();
+            if(controller != null ) controller.CheckpointCaptured();
+            if(CheckpointTimes.Instance.UpdateCheckpointTimes(other) >= 2) Stop();
         }
         if (HitWall != null && other.gameObject.tag == "RaceTrack")
         {
@@ -162,6 +184,12 @@ public class MyCarMovement : MonoBehaviour
 
     public void Stop()
     {
-        carBody.velocity = new Vector3(0f,0f,0f);
+        
+        if (writer != null)
+        {
+            writer.Flush();
+            writer.Close();
+        }
+        //Destroy(this.gameObject);
     }
 }

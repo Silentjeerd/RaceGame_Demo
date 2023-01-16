@@ -55,7 +55,7 @@ public class CheckpointTimes : MonoBehaviour
     /// It will put the name and time into a Dictionary.
     /// </summary>
     /// <param name="checkpoint"></param> The checkpoint that was collided with.
-    public void UpdateCheckpointTimes(Collider checkpoint)
+    public int UpdateCheckpointTimes(Collider checkpoint)
     {
         float[] checkpointTimes = new float[3] { displayTimer[0], displayTimer[1], displayTimer[2] };
         string checkPointName = "Lap: " + lapCount + " - " + checkpoint.gameObject.name;
@@ -71,6 +71,7 @@ public class CheckpointTimes : MonoBehaviour
         {
             checkpointCollision(checkpoint);
         }
+        return lapCount;
     }
 
     /// <summary>

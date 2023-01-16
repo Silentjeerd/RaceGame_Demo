@@ -8,13 +8,14 @@ public class Weather : MonoBehaviour
     private float east = 25f; //x
     private float south = -93f; //z
     private float west = -175f; //x
-
+    private float rainRadius = 5f;
     private int cloudiness;
     private int maxClouds;
+    private int maxRaindrops;
     private Vector3 windDir;
 
     private List<GameObject> clouds = new List<GameObject>();
-    
+    private List<GameObject> rainDrops = new List<GameObject>();
     [SerializeField]
     public Mesh[] cloudMeshes;
 
@@ -25,18 +26,24 @@ public class Weather : MonoBehaviour
     void Start()
     {
         cloudiness = Random.Range(0, 10);
-        maxClouds = 100 * cloudiness;
+        maxClouds = cloudiness * 100;
+        maxRaindrops = cloudiness * 10;
         //maxClouds = 1000;
-        for(int i = 0; i < maxClouds; i++)
+        for (int i = 0; i < maxClouds; i++)
         {
             GameObject cloud = (GameObject)GameObject.Instantiate(Resources.Load("Prefabs/Cloud"));
             cloud.GetComponent<MeshFilter>().mesh = cloudMeshes[Random.Range(0, cloudMeshes.Length)];
             cloud.transform.position = spawnPos();
             cloud.transform.rotation = Random.rotation;
             clouds.Add(cloud);
-            //GameObject rain = (GameObject)GameObject.Instantiate(Resources.Load("Prefabs/Quad"));
-            //rain.transform.position = spawnPos();
-            //clouds.Add(rain);
+
+        }
+
+        for(int i = 0; i < maxRaindrops; i++)
+        {
+            GameObject rain = (GameObject)GameObject.Instantiate(Resources.Load("Prefabs/Quad"));
+            rain.transform.position = spawnPos();
+            rainDrops.Add(rain);
         }
 
     }
@@ -53,6 +60,7 @@ public class Weather : MonoBehaviour
         //    clouds.Add(cloud);
         //}
         cloudOutofBounds();
+        rainDropOutOfBounds();
     }
 
     private Vector3 spawnPos()
@@ -77,6 +85,23 @@ public class Weather : MonoBehaviour
             if (cloud.transform.position.z < south) pos.z = north;
             cloud.transform.position = pos;
             //if (cloud.transform.position.y < 0) cloud.transform.position = spawnPos();
+        }
+    }
+
+    private void rainDropOutOfBounds()
+    {
+        if (GameManager.Instance.activeCar != null)
+        {
+            Vector3 bounds = GameManager.Instance.activeCar.transform.position;
+            foreach (GameObject rain in rainDrops)
+            {
+                Vector3 newRainPos = rain.transform.position;
+                if (rain.transform.position.x > bounds.x + rainRadius) newRainPos.x = bounds.x - rainRadius;
+                if (rain.transform.position.x < bounds.x - rainRadius) newRainPos.x = bounds.x + rainRadius;
+                if (rain.transform.position.z > bounds.z + rainRadius) newRainPos.z = bounds.z - rainRadius;
+                if (rain.transform.position.z < bounds.z - rainRadius) newRainPos.z = bounds.z + rainRadius;
+                rain.transform.position = newRainPos;
+            }
         }
     }
 }
