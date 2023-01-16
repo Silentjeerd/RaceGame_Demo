@@ -179,12 +179,13 @@ public class GeneticAlgorithm
     /// </remarks>
     public GeneticAlgorithm(uint genotypeParamCount, uint populationSize)
     {
+        //string filepath = "C:/Users/tjeer/Desktop/Minor Unity Project/RaceGameDemo/RaceGame Demo/Evaluation - RaceGameDemoTrack1 2023_01_13_15-40-48/Genotype - Finished as 2.txt";
         this.PopulationSize = populationSize;
         //Initialise empty population
         currentPopulation = new List<Genotype>((int) populationSize);
         for (int i = 0; i < populationSize; i++)
             currentPopulation.Add(new Genotype(new float[genotypeParamCount]));
-
+            //currentPopulation.Add(Genotype.LoadFromFile(filepath));
         GenerationCount = 1;
         SortPopulation = true;
         Running = false;
@@ -257,6 +258,25 @@ public class GeneticAlgorithm
         //Set parameters to random values in set range
         foreach (Genotype genotype in population)
             genotype.SetRandomParameters(DefInitParamMin, DefInitParamMax);
+    }
+
+    /// <summary>
+    /// Initialises the population by setting each parameter to a random value in the default range.
+    /// </summary>
+    /// <param name="population">The population to be initialised.</param>
+    public static void FilePopulationInitialisation(IEnumerable<Genotype> population)
+    {
+        string filepath = "C:/Users/tjeer/Desktop/Minor Unity Project/RaceGameDemo/RaceGame Demo/Evaluation - RaceGameDemoTrack1 2023_01_13_15-40-48/Genotype - Finished as 2.txt";
+        
+        //Set parameters to random values in set range
+        foreach (Genotype genotype in population)
+        {
+            //float[] paras = Genotype.LoadFromFile(filepath).parameters;
+            //Genotype geno = ;
+            //genotype = geno;
+        }
+            
+        //genotype.SetRandomParameters(DefInitParamMin, DefInitParamMax);
     }
 
     public static void AsyncEvaluation(IEnumerable<Genotype> currentPopulation)

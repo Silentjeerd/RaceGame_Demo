@@ -12,7 +12,7 @@ public class GhostMovement : MonoBehaviour
     [SerializeField] Transform backRightTransform;
     [SerializeField] Transform backLeftTransform;
 
-    [SerializeField] string path;
+    [SerializeField] public string path;
 
     private StreamReader reader;
     

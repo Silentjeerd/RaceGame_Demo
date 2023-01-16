@@ -65,7 +65,7 @@ public class CarMovement : MonoBehaviour
 	void FixedUpdate ()
     {
         //Get user input if controller tells us to
-        if (controller != null && controller.UseUserInput)
+        if (controller != null)
             CheckInput();
 
         ApplyInput();

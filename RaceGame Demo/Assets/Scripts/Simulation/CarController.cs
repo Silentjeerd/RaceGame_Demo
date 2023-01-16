@@ -43,11 +43,6 @@ public class CarController : MonoBehaviour
     }
 
     /// <summary>
-    /// Whether this car is controllable by user input (keyboard).
-    /// </summary>
-    public bool UseUserInput = false;
-
-    /// <summary>
     /// The movement component of this car.
     /// </summary>
     public MyCarMovement Movement
@@ -84,16 +79,13 @@ public class CarController : MonoBehaviour
         Movement = GetComponent<MyCarMovement>();
         SpriteRenderer = GetComponent<SpriteRenderer>();
         sensors = GetComponentsInChildren<Sensor>();
-        if(!UseUserInput) this.gameObject.SetActive(false);
-
+        this.name = "Agent " + NextID;
+        this.gameObject.SetActive(false);
     }
 
     void Start()
     {
-        Movement.HitWall += Die;
-        //Set name to be unique
-        this.name = "Car (" + NextID + ")";
-        
+       Movement.HitWall += Die;  
     }
     #endregion
 
@@ -106,6 +98,7 @@ public class CarController : MonoBehaviour
         //Debug.Log("restarting car: " + this.name);
         this.gameObject.SetActive(true);
         Movement.enabled = true;
+        Movement.Restart();
         timeSinceLastCheckpoint = 0;
 
         foreach (Sensor s in sensors)
@@ -124,43 +117,36 @@ public class CarController : MonoBehaviour
     // Unity method for physics update
     void FixedUpdate()
     {
-        //Get control inputs from Agent
-        if (!UseUserInput)
+        //Get readings from sensors
+        double[] sensorOutput = new double[sensors.Length];
+        for (int i = 0; i < sensors.Length; i++)
         {
-            //Get readings from sensors
-            double[] sensorOutput = new double[sensors.Length];
-            for (int i = 0; i < sensors.Length; i++)
-            {
-                sensorOutput[i] = sensors[i].Output;
-            }
-
-            double[] controlInputs = Agent.FNN.ProcessInputs(sensorOutput);
-            float[] newInputs = new float[2];
-            newInputs[0] = (float)controlInputs[0];
-            newInputs[1] = (float)controlInputs[1];
-
-            Movement.SetInputs(newInputs);
-            if (timeSinceLastCheckpoint > MAX_CHECKPOINT_DELAY || Agent.Genotype.Evaluation == 1) Die();
+            sensorOutput[i] = sensors[i].Output;
         }
 
+        double[] controlInputs = Agent.FNN.ProcessInputs(sensorOutput);
+        float[] newInputs = new float[2];
+        newInputs[0] = (float)controlInputs[0];
+        newInputs[1] = (float)controlInputs[1];
+
+        Movement.SetInputs(newInputs);
+        if (timeSinceLastCheckpoint > MAX_CHECKPOINT_DELAY || Agent.Genotype.Evaluation == 1) Die();
 
     }
 
     // Makes this car die (making it unmovable and stops the Agent from calculating the controls for the car).
     private void Die()
     {
-        if (!UseUserInput)
-        {
-            this.gameObject.SetActive(false);
-            this.enabled = false;
-            Movement.Stop();
-            Movement.enabled = false;
+        Debug.Log("Agent has died, score was :" + this.CurrentCompletionReward);
+        this.gameObject.SetActive(false);
+        this.enabled = false;
+        Movement.Stop();
+        Movement.enabled = false;
 
-            foreach (Sensor s in sensors)
-                s.Hide();
+        foreach (Sensor s in sensors)
+            s.Hide();
 
-            Agent.Kill();
-        }
+        Agent.Kill();
     }
 
     public void CheckpointCaptured()
