@@ -25,21 +25,21 @@ public class EvolutionManager : MonoBehaviour
 
     // Whether or not the results of each generation shall be written to file, to be set in Unity Editor
     [SerializeField]
-    private bool SaveStatistics = false;
+    private bool SaveStatistics = true;
     private string statisticsFileName;
 
     // How many of the first to finish the course should be saved to file, to be set in Unity Editor
     [SerializeField]
-    private uint SaveFirstNGenotype = 0;
+    private uint SaveFirstNGenotype = 2;
     private uint genotypesSaved = 0;
 
     // Population size, to be set in Unity Editor
     [SerializeField]
-    private int PopulationSize = 30;
+    private int PopulationSize = 10;
 
     // After how many generations should the genetic algorithm be restart (0 for never), to be set in Unity Editor
     [SerializeField]
-    private int RestartAfter = 100;
+    private int RestartAfter = 10;
 
     // Whether to use elitist selection or remainder stochastic sampling, to be set in Unity Editor
     [SerializeField]
@@ -84,7 +84,14 @@ public class EvolutionManager : MonoBehaviour
             Debug.LogError("More than one EvolutionManager in the Scene.");
             return;
         }
+
+        //creates a new folder.
+        GameManager.Instance.createNewSavefileFolder("NN/Friday13/");
+
         Instance = this;
+        FNNTopology = new uint[] { GameManager.Instance.settings.sensorCount, 8 };
+        PopulationSize = GameManager.Instance.settings.agentCount;
+        RestartAfter = GameManager.Instance.settings.generations;
     }
     #endregion
 
@@ -218,18 +225,22 @@ public class EvolutionManager : MonoBehaviour
 
         TrackManager.Instance.SetCarAmount(agents.Count);
         IEnumerator<CarController> carsEnum = TrackManager.Instance.GetCarEnumerator();
+
         for (int i = 0; i < agents.Count; i++)
         {
+
             if (!carsEnum.MoveNext())
             {
                 Debug.LogError("Cars enum ended before agents.");
                 break;
             }
-
             carsEnum.Current.Agent = agents[i];
             AgentsAliveCount++;
             agents[i].AgentDied += OnAgentDied;
         }
+
+        //append the savefilpath
+        GameManager.Instance.changeSaveFileFolder("Generation" + GenerationCount + "/");
         Debug.Log("Starting Evaluation of generation : " + GenerationCount + " with " + AgentsAliveCount + " agents");
         TrackManager.Instance.Restart();
     }
@@ -240,7 +251,6 @@ public class EvolutionManager : MonoBehaviour
         AgentsAliveCount--;
         if (AgentsAliveCount == 0 && AllAgentsDied != null)
         {
-            
             AllAgentsDied();
         }
     }

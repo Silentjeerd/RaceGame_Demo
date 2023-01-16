@@ -18,7 +18,7 @@ public class rainDroplet : MonoBehaviour
     void Update()
     {
         transform.rotation = Random.rotation;
-        if (Time.frameCount % 80 == 0) Destroy(this.gameObject);
+        if(transform.position.y < 0) Destroy(this.gameObject);
         //transform.position += normalDirection *0.001f;
         
     }

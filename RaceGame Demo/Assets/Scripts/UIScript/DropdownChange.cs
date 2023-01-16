@@ -35,7 +35,16 @@ public class DropdownChange : MonoBehaviour
     {
         string m_Message = change.options[change.value].text;
         image.texture = Resources.Load<Texture>("Sprites/" + m_Message);
-        if (change.name == "DropdownCar") StartUI.Instance.SetCarChoice(m_Message); else StartUI.Instance.SetTrackChoice(m_Message);
+        switch (change.name)
+        {
+            case "DropdownCar":
+                StartUI.Instance.gameSettings.selectedCar = m_Message;
+                break;
+            case "DropdownTrack":
+                StartUI.Instance.gameSettings.selectedTrack = m_Message;
+                break;
+            default:
+                break;
+        }
     }
-
 }

@@ -36,7 +36,7 @@ public class TrackManager : MonoBehaviour
     private GameObject prefab;
     //public CarController PrototypeCar;
     // Start position for cars
-    public GameObject spawn;
+    private GameObject spawn;
     private Vector3 startPosition;
     private Quaternion startRotation;
 
@@ -145,7 +145,7 @@ public class TrackManager : MonoBehaviour
         }
 
         Instance = this;
-
+        spawn = GameObject.Find("Spawn");
         //Get all checkpoints
         checkpoints = GetComponentsInChildren<Checkpoint>();
         //Set start position and hide prototype
@@ -153,7 +153,10 @@ public class TrackManager : MonoBehaviour
         startRotation = spawn.transform.rotation;
         //startPosition = PrototypeCar.transform.position;
         //startRotation = PrototypeCar.transform.rotation;
-        prefab = (GameObject)GameObject.Instantiate(Resources.Load("Prefabs/UICARNEW")); //loads prefab car from file (need to change to variable file).
+
+        prefab = (GameObject)Resources.Load("Prefabs/" + GameManager.Instance.settings.selectedCar);
+
+        //prefab = (GameObject)GameObject.Instantiate(Resources.Load("Prefabs/" + GameManager.Instance.settings.selectedCar)); //loads prefab car from file (need to change to variable file).
         //UnityEngine.Object pPrefab = Resources.Load("Prefabs/UICar");
         //prefab = (GameObject)
         //prefab = Resources.Load("Prefabs/UICar");
@@ -195,17 +198,15 @@ public class TrackManager : MonoBehaviour
     // Unity method for updating the simulation
     void Update()
     {
-        //Debug.Log(currentCar + " : " + cars.Count + " : " + bestCar + " : " + secondBestCar);
-        
         if (currentCar < cars.Count)
         {
             RaceCar car = cars[currentCar];
             if (!car.Car.Agent.IsAlive)
             {
-                Debug.Log("Agent has died, score was :" + car.Car.CurrentCompletionReward);
                 currentCar++;
                 CheckpointTimes.Instance.reset();
                 cars[currentCar].Car.Restart();
+                GameManager.Instance.changeCarCamera();
             }
             if (car.Car.enabled)
             {
@@ -237,9 +238,11 @@ public class TrackManager : MonoBehaviour
                 carCopy.transform.position = startPosition;
                 carCopy.transform.rotation = startRotation;
                 //carCopy.parent = spawn;
-                CarController controllerCopy = carCopy.GetComponent<CarController>();
+                CarController controllerCopy = carCopy.AddComponent<CarController>(); //GetComponent<CarController>();
+                //CarController controllerCopy = carCopy.GetComponent<CarController>();
                 cars.Add(new RaceCar(controllerCopy, 0));
-                carCopy.SetActive(true);
+                carCopy.SetActive(false);
+                GameManager.Instance.addCarToList(carCopy);
             }
         }
         else if (amount < cars.Count)
@@ -273,6 +276,7 @@ public class TrackManager : MonoBehaviour
         SecondBestCar = null;
         CheckpointTimes.Instance.resetCheckpoints();
         cars[currentCar].Car.Restart();
+        GameManager.Instance.changeCarCamera();
     }
 
     /// <summary>
@@ -281,7 +285,10 @@ public class TrackManager : MonoBehaviour
     public IEnumerator<CarController> GetCarEnumerator()
     {
         for (int i = 0; i < cars.Count; i++)
+        {
             yield return cars[i].Car;
+        }
+
     }
 
     /// <summary>
@@ -290,11 +297,14 @@ public class TrackManager : MonoBehaviour
     /// </summary>
     private void CalculateCheckpointPercentages()
     {
+
         checkpoints[0].AccumulatedDistance = 0; //First checkpoint is start
+        //GameObject spawn = GameObject.Find("Spawn");
+        //Vector2 distance = Vector2.Distance(checkpoints[0].transform.position, spawn.transform.position);
         //Iterate over remaining checkpoints and set distance to previous and accumulated track distance.
         for (int i = 1; i < checkpoints.Length; i++)
         {
-            checkpoints[i].DistanceToPrevious = Vector2.Distance(checkpoints[i].transform.position, checkpoints[i - 1].transform.position);
+            checkpoints[i].DistanceToPrevious = Vector3.Distance(checkpoints[i].transform.position, checkpoints[i - 1].transform.position);
             checkpoints[i].AccumulatedDistance = checkpoints[i - 1].AccumulatedDistance + checkpoints[i].DistanceToPrevious;
         }
 
@@ -306,6 +316,11 @@ public class TrackManager : MonoBehaviour
         {
             checkpoints[i].RewardValue = (checkpoints[i].AccumulatedDistance / TrackLength) - checkpoints[i-1].AccumulatedReward;
             checkpoints[i].AccumulatedReward = checkpoints[i - 1].AccumulatedReward + checkpoints[i].RewardValue;
+        }
+
+        for(int i = 0; i < checkpoints.Length; i++)
+        {
+            Debug.Log(checkpoints[i].gameObject.name + " : " +  checkpoints[i].RewardValue);
         }
     }
 
@@ -321,7 +336,7 @@ public class TrackManager : MonoBehaviour
         }
 
         //Calculate distance to next checkpoint
-        float checkPointDistance = Vector2.Distance(car.transform.position, checkpoints[curCheckpointIndex].transform.position);
+        float checkPointDistance = Vector3.Distance(car.transform.position, checkpoints[curCheckpointIndex].transform.position);
         //Check if checkpoint can be captured
         
         if (!checkpoints[curCheckpointIndex].gameObject.activeSelf)

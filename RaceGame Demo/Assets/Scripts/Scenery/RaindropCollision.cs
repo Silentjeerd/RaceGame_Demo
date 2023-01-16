@@ -14,9 +14,9 @@ public class RaindropCollision : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        //rainScale = new Vector3(0.1f, 0.1f, 0.1f);
+        rainScale = new Vector3(0.05f, 0.1f, 0.05f);
         rainMesh = raindropMesh.mesh;
-        //transform.localScale = rainScale;
+        transform.localScale = rainScale;
         gameObject.GetComponent<MeshRenderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
         covertToFaces();
     }
@@ -24,8 +24,8 @@ public class RaindropCollision : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        transform.position += (Vector3.down * 3f) * Time.deltaTime;
-        //if (transform.position.y <= 0) Destroy(this.gameObject);
+        transform.position += (Vector3.down * 1f) * Time.deltaTime;
+        if (transform.position.y <= 0) transform.position = new Vector3(transform.position.x,25,transform.position.z);
     }
 
     private void covertToFaces()
@@ -48,12 +48,13 @@ public class RaindropCollision : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
+        transform.position = new Vector3(transform.position.x, 25, transform.position.z);
         int randomDrops = Random.Range(2, faceMeshes.Length);
         for (int i = 0; i < randomDrops; i++)
         {
             GameObject explosiveFace = new GameObject();
             explosiveFace.transform.position += transform.position;
-            //explosiveFace.transform.localScale = rainScale;
+            explosiveFace.transform.localScale = rainScale;
             explosiveFace.AddComponent<MeshFilter>().mesh = faceMeshes[i];
             explosiveFace.AddComponent<MeshRenderer>().material = gameObject.GetComponent<MeshRenderer>().material;
             //explosiveFace.GetComponent<MeshRenderer>().material = gameObject.GetComponent<MeshRenderer>().material;

@@ -1,21 +1,28 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using System;
 public class StartUI : MonoBehaviour
 {
     public static StartUI Instance { get; private set; }
     private GameObject currentMenu;
-    private string selectedCar;
-    private string selectedTrack;
-
+    public GameSettings gameSettings;
+    
     void Awake()
     {
-        Application.targetFrameRate = 60;
         Instance = this;
+        Application.targetFrameRate = 60;
+        gameSettings = new GameSettings();
         currentMenu = GameObject.Find("StartMenu");
-        selectedCar = "Car1";
-        selectedTrack = "Track1";
+
+        gameSettings.selectedCar = "Car1";
+        gameSettings.selectedTrack = "Track1";
+        gameSettings.playerInput = false;
+        gameSettings.saveGhost = false;
+        gameSettings.ghostFilePath = "Assets/Resources/TxtGhosts/";
+        gameSettings.NNTraining = false;
+
+
     }
 
     // Start is called before the first frame update
@@ -37,14 +44,30 @@ public class StartUI : MonoBehaviour
         currentMenu = Menu;
     }
 
-    public void SetCarChoice(string carChoice)
+    //public void SetCarChoice(string carChoice)
+    //{
+    //    gameSettings.selectedCar = carChoice;
+    //}
+
+    //public void SetTrackChoice(string trackChoice)
+    //{
+    //    gameSettings.selectedTrack = trackChoice;
+    //}
+
+    public void OnDisable()
     {
-        selectedCar = carChoice;
+        Save();
     }
 
-    public void SetTrackChoice(string trackChoice)
+    public void Save()
     {
-        selectedTrack = trackChoice;
+        //GameObject.Find("StartMenu");
+        //Convert to Json
+        //Debug.Log(gameSettings.selectedTrack);
+        string jsonData = JsonUtility.ToJson(gameSettings);
+        //Debug.Log(jsonData);
+        //Save Json string
+        PlayerPrefs.SetString("MySettings", jsonData);
+        PlayerPrefs.Save();
     }
-
 }
