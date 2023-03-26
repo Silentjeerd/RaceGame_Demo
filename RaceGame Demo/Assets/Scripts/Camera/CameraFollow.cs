@@ -4,103 +4,38 @@ using UnityEngine;
 
 public class CameraFollow : MonoBehaviour
 {
-    delegate void CameraAngleFunction();
-    List<CameraAngleFunction> cameraAngles = new List<CameraAngleFunction>();
-    //private struct cameraSettings
-    //{
-    //    public cameraSettings(Vector3 offset, CameraAngleFunction function)
-    //    {
-    //        this.offset = offset;
-    //        this.functionName = function;
-    //    }
+    List<string> perspectives = new List<string> { "FirstPerson", "ThirdPerson", "TopDown" };
+    public GameObject target; //The car that is being followed.
+    public int angleIndex = 0; //Index to itterate through the list of perspectives.
 
-    //    public Vector3 offset { get; }
-    //    //public Quaternion rotation { get; }
-    //    //public float desiredAngle
-    //    public CameraAngleFunction functionName;
-    //}
-    //List<cameraSettings> cameraAngles = new List<cameraSettings>();
 
-    public GameObject target;
-    public int angleIndex;
-    private Vector3 offset;
-    //private float desiredAngle;
-    private Quaternion rotation;
-
-    void Start()
-    {
-        cameraAngles.Add(firstPerson);
-        cameraAngles.Add(thirdPerson);
-        cameraAngles.Add(topDown);
-        angleIndex = 1;
-        
-        //cameraAngles.Add(new cameraSettings(target.transform.position, firstPerson));
-        //cameraAngles.Add(new cameraSettings(target.transform.position - transform.position, thirdPerson)); //ThirdPerson
-        //cameraAngles.Add(new cameraSettings(target.transform.position, topDown));
-        //nextCameraAngle();
-    }
-
-    public void setOffset(GameObject car)
-    {
-        offset = car.transform.position - transform.position;
-    }
-
-    // Update is called once per frame
+    /// <summary>
+    /// LateUpdate is called once at the end of a frame
+    /// Calls changePerspective to adjust the camera.
+    /// </summary>
     void LateUpdate()
     {
-        //desiredAngle = target.transform.eulerAngles.y;
-        ////Quaternion rotation = Quaternion.Euler(-8, desiredAngle, 0);
-        //transform.position = target.transform.position - (rotation * offset);
-        //transform.LookAt(target.transform);
-        if(target != null) cameraAngles[angleIndex]();
-        //float desiredAngle = target.transform.eulerAngles.y;
+        if (target != null) changePerspective(perspectives[angleIndex]);// cameraAngles[angleIndex]();
     }
 
+    /// <summary>
+    /// Itterates to the next angle, resets to index 0 based on list length.
+    /// </summary>
     public void nextCameraAngle()
     {
-        Debug.Log("Changing angle");
         angleIndex++;
-        if (angleIndex >= cameraAngles.Count) angleIndex = 0;
-        //rotation = cameraAngles[angleIndex].rotation;
-        //offset = cameraAngles[angleIndex].offset;
+        if (angleIndex >= perspectives.Count) angleIndex = 0;
     }
 
-    void firstPerson()
+    /// <summary>
+    /// Changes the cameras position and rotation.
+    /// Finds/uses the Transform thats attached to the current car.
+    /// </summary>
+    /// <param name="perspective"></param> The name of the Transform that is being used.
+    void changePerspective(string perspective) 
     {
-        //offset = target.transform.position - transform.position;
-        float desiredAngle = target.transform.eulerAngles.y;
-        Quaternion rotation = Quaternion.Euler(0, desiredAngle, 0);
-        transform.position = new Vector3(target.transform.position.x, target.transform.position.y+1.5f, target.transform.position.z);
-        transform.rotation = rotation;
-        //Vector3(target.transform.position.x, 20, target.transform.position.z);
-        //transform.LookAt(target.transform);
+        Transform targetTransform = target.transform.Find("CameraPositions/" + perspective);
+        this.transform.position = targetTransform.position;
+        this.transform.rotation = targetTransform.rotation;
     }
-
-    void thirdPerson()
-    {
-        //offset = target.transform.position - transform.position;
-        float desiredAngle = target.transform.eulerAngles.y;
-        Quaternion rotation = Quaternion.Euler(-8, desiredAngle, 0);
-        transform.position = target.transform.position - (rotation * offset);// target.transform.position - transform.position);
-        //Vector3(target.transform.position.x, 20, target.transform.position.z);
-        transform.LookAt(target.transform);
-    }
-
-    void topDown()
-    {
-        ////offset = target.transform.position - transform.position;
-        //float rotationY = ;
-        ////Debug.Log(rotationY);
-        //Quaternion rotation = Quaternion.Euler(90, target.transform.eulerAngles.y, 0);
-        //Debug.Log(rotation);
-        //Vector3 newPos = new Vector3(target.transform.position.x, 25, target.transform.position.z);
-        transform.position = new Vector3(target.transform.position.x, 25, target.transform.position.z);
-        transform.rotation = Quaternion.Euler(90, target.transform.eulerAngles.y, 0);
-
-
-        //Vector3(target.transform.position.x, 20, target.transform.position.z);
-        //transform.LookAt(target.transform);
-        //transform.rotation = target.transform.rotation;
-    }
-
 }

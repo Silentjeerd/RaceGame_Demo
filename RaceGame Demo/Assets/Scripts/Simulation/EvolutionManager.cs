@@ -14,7 +14,7 @@ using System.IO;
 /// </summary>
 public class EvolutionManager : MonoBehaviour
 {
-    #region Members
+
     private static System.Random randomizer = new System.Random();
 
     public static EvolutionManager Instance
@@ -74,9 +74,7 @@ public class EvolutionManager : MonoBehaviour
     {
         get { return geneticAlgorithm.GenerationCount; }
     }
-    #endregion
 
-    #region Constructors
     void Awake()
     {
         if (Instance != null)
@@ -85,17 +83,12 @@ public class EvolutionManager : MonoBehaviour
             return;
         }
 
-        //creates a new folder.
-        GameManager.Instance.createNewSavefileFolder("NN/Friday13/");
-
         Instance = this;
         FNNTopology = new uint[] { GameManager.Instance.settings.sensorCount, 8 };
         PopulationSize = GameManager.Instance.settings.agentCount;
         RestartAfter = GameManager.Instance.settings.generations;
     }
-    #endregion
 
-    #region Methods
     /// <summary>
     /// Starts the evolutionary process.
     /// </summary>
@@ -174,7 +167,7 @@ public class EvolutionManager : MonoBehaviour
     {
         if (genotypesSaved >= SaveFirstNGenotype) return;
 
-        string saveFolder = statisticsFileName + "/";
+        string saveFolder = statisticsFileName + "/" + geneticAlgorithm.GenerationCount + "/";
 
         foreach (Genotype genotype in currentPopulation)
         {
@@ -224,7 +217,7 @@ public class EvolutionManager : MonoBehaviour
             agents.Add(new Agent(genotype, MathHelper.SoftSignFunction, FNNTopology));
 
         TrackManager.Instance.SetCarAmount(agents.Count);
-        IEnumerator<CarController> carsEnum = TrackManager.Instance.GetCarEnumerator();
+        IEnumerator<AICarController> carsEnum = TrackManager.Instance.GetCarEnumerator();
 
         for (int i = 0; i < agents.Count; i++)
         {
@@ -241,7 +234,6 @@ public class EvolutionManager : MonoBehaviour
 
         //append the savefilpath
         GameManager.Instance.changeSaveFileFolder("Generation" + GenerationCount + "/");
-        Debug.Log("Starting Evaluation of generation : " + GenerationCount + " with " + AgentsAliveCount + " agents");
         TrackManager.Instance.Restart();
     }
 
@@ -255,7 +247,7 @@ public class EvolutionManager : MonoBehaviour
         }
     }
 
-    #region GA Operators
+
     // Selection operator for the genetic algorithm, using a method called remainder stochastic sampling.
     private List<Genotype> RemainderStochasticSampling(List<Genotype> currentPopulation)
     {
@@ -336,7 +328,5 @@ public class EvolutionManager : MonoBehaviour
                 GeneticAlgorithm.MutateGenotype(genotype, GeneticAlgorithm.DefMutationProb, GeneticAlgorithm.DefMutationAmount);
         }
     }
-    #endregion
-    #endregion
 
     }

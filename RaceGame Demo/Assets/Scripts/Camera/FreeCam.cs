@@ -18,10 +18,7 @@ public class FreeCam : MonoBehaviour
         lastMouse = new Vector3(transform.eulerAngles.x + lastMouse.x, transform.eulerAngles.y + lastMouse.y, 0);
         transform.eulerAngles = lastMouse;
         lastMouse = Input.mousePosition;
-        //Mouse  camera angle done.  
 
-        //Keyboard commands
-        //float f = 0.0f;
         Vector3 p = GetBaseInput();
         if (p.sqrMagnitude > 0)
         { // only move while a direction key is pressed
@@ -55,6 +52,10 @@ public class FreeCam : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Converts WASD inputs to vectors for camera movement.
+    /// </summary>
+    /// <returns></returns>
     private Vector3 GetBaseInput()
     { //returns the basic values, if it's 0 than it's not active.
         Vector3 p_Velocity = new Vector3();

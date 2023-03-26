@@ -19,7 +19,7 @@ public class Sensor : MonoBehaviour
     private SpriteRenderer Cross;
 
     // Max and min readings
-    private const float MAX_DIST = 20f;
+    private const float MAX_DIST = 10f;
     private const float MIN_DIST = 0.01f;
 
     /// <summary>
@@ -28,7 +28,6 @@ public class Sensor : MonoBehaviour
     public float Output
     {
         get;
-
         private set;
     }
     #endregion
@@ -40,35 +39,29 @@ public class Sensor : MonoBehaviour
 	}
     #endregion
 
-    #region Methods
-    // Unity method for updating the simulation
+    /// <summary>
+    /// 
+    /// </summary>
     void FixedUpdate ()
-    {
-        RayCastTest();
-	}
-
-    void RayCastTest()
     {
         Vector3 fwd = transform.TransformDirection(Vector3.forward);
         RaycastHit hit;
-        //Vector3 pos = transform.position;
         if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hit, MAX_DIST, LayerToSense))
         {
-            Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.forward) * hit.distance, Color.yellow); 
+            Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.forward) * hit.distance, Color.yellow);
         }
         else
         {
             Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.forward) * MAX_DIST, Color.yellow);
         }
 
-        //Check distance
         if (hit.collider == null)
             hit.distance = MAX_DIST;
         else if (hit.distance < MIN_DIST)
             hit.distance = MIN_DIST;
 
         Cross.transform.position = hit.point;
-        this.Output = hit.distance; //transform to percent of max distance
+        this.Output = hit.distance;
     }
 
     /// <summary>
@@ -86,5 +79,5 @@ public class Sensor : MonoBehaviour
     {
        Cross.gameObject.SetActive(true);
     }
-    #endregion
+
 }
