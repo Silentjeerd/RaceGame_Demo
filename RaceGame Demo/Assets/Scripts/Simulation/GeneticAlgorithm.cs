@@ -179,12 +179,13 @@ public class GeneticAlgorithm
     /// </remarks>
     public GeneticAlgorithm(uint genotypeParamCount, uint populationSize)
     {
+        //string filepath = "C:/Users/tjeer/Desktop/Minor Unity Project/RaceGameDemo/RaceGame Demo/Evaluation - RaceGameDemoTrack1 2023_01_13_15-40-48/Genotype - Finished as 2.txt";
         this.PopulationSize = populationSize;
         //Initialise empty population
         currentPopulation = new List<Genotype>((int) populationSize);
         for (int i = 0; i < populationSize; i++)
             currentPopulation.Add(new Genotype(new float[genotypeParamCount]));
-
+            //currentPopulation.Add(Genotype.LoadFromFile(filepath));
         GenerationCount = 1;
         SortPopulation = true;
         Running = false;

@@ -4,21 +4,38 @@ using UnityEngine;
 
 public class CameraFollow : MonoBehaviour
 {
-    public GameObject target;
-    Vector3 offset;
+    List<string> perspectives = new List<string> { "FirstPerson", "ThirdPerson", "TopDown" };
+    public GameObject target; //The car that is being followed.
+    public int angleIndex = 0; //Index to itterate through the list of perspectives.
 
-    void Start()
-    {
-        offset = target.transform.position - transform.position;
-    }
 
-    // Update is called once per frame
+    /// <summary>
+    /// LateUpdate is called once at the end of a frame
+    /// Calls changePerspective to adjust the camera.
+    /// </summary>
     void LateUpdate()
     {
-        float desiredAngle = target.transform.eulerAngles.y;
-        Quaternion rotation = Quaternion.Euler(-8, desiredAngle, 0);
-        transform.position = target.transform.position - (rotation * offset);
-        transform.LookAt(target.transform);
+        if (target != null) changePerspective(perspectives[angleIndex]);// cameraAngles[angleIndex]();
     }
 
+    /// <summary>
+    /// Itterates to the next angle, resets to index 0 based on list length.
+    /// </summary>
+    public void nextCameraAngle()
+    {
+        angleIndex++;
+        if (angleIndex >= perspectives.Count) angleIndex = 0;
+    }
+
+    /// <summary>
+    /// Changes the cameras position and rotation.
+    /// Finds/uses the Transform thats attached to the current car.
+    /// </summary>
+    /// <param name="perspective"></param> The name of the Transform that is being used.
+    void changePerspective(string perspective) 
+    {
+        Transform targetTransform = target.transform.Find("CameraPositions/" + perspective);
+        this.transform.position = targetTransform.position;
+        this.transform.rotation = targetTransform.rotation;
+    }
 }

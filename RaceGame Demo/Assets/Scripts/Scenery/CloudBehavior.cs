@@ -4,25 +4,12 @@ using UnityEngine;
 
 public class CloudBehavior : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
+    /// <summary>
+    /// transforms the position of the cloud based on time past and the wind direction.
+    /// </summary>
     void Update()
     {
         transform.position += GameManager.Instance.getWindDirection() * Time.deltaTime;
-        //if (Time.frameCount % GameManager.Instance.rainfallFrameDelay == 0) produceRain();
-
     }
 
-    private void produceRain()
-    {
-
-        GameObject rain = (GameObject)GameObject.Instantiate(Resources.Load("Prefabs/Quad"));
-        rain.transform.position = this.transform.position;
-       // transform.position
-    }
 }

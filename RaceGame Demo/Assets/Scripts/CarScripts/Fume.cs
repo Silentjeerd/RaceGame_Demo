@@ -5,38 +5,48 @@ using UnityEngine;
 public class Fume : MonoBehaviour
 {
     private float spawnFrame;
-    MeshRenderer meshrend;
-    // Start is called before the first frame update
+    MeshRenderer meshRenderer;
+
+    /// <summary>
+    /// Sets the meshRenderer, changes to Renderingmode.
+    /// Sets the spawnFrame to its instantiation frame.
+    /// </summary>
     void Awake()
     {
-        meshrend = gameObject.GetComponentInChildren<MeshRenderer>();
+        meshRenderer = gameObject.GetComponentInChildren<MeshRenderer>();
         changeModeToFade();
         spawnFrame = Time.frameCount;
     }
 
-    // Update is called once per frame
+    /// <summary>
+    /// Adjusts the position of the GameObject based on its direction and the wind direction.
+    /// Slowly decreases the alpha channel of the color every update to make it fade away.
+    /// Slowly decreases the scale of the gameobject in addition to the fade away.
+    /// After 60 frames the object will be destroyed.
+    /// </summary>
     void Update()
     {
-        Vector3 randomFloat = new Vector3(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f));
         transform.position += (transform.TransformDirection(Vector3.forward) + GameManager.Instance.getWindDirection()) * Time.deltaTime;
-        //Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.forward) * 10f, Color.yellow);
-        Color meshColor = meshrend.material.color;
-        meshrend.material.color = new Color(meshColor.r, meshColor.g, meshColor.b, meshColor.a - 0.01f); //fume slowly becomes transparent
+        Color meshColor = meshRenderer.material.color;
+        meshRenderer.material.color = new Color(meshColor.r, meshColor.g, meshColor.b, meshColor.a - 0.01f); //fume slowly becomes transparent
 
-        if (Time.frameCount % 15 == 0) transform.localScale -= new Vector3(0.01f, 0.01f, 0.01f); //
-        if (Time.frameCount - spawnFrame >= 60) Destroy(this.gameObject); // gameObject will get destroyed after 60frames.
+        if (Time.frameCount % 15 == 0) transform.localScale -= new Vector3(0.01f, 0.01f, 0.01f);
+        if (Time.frameCount - spawnFrame >= 60) Destroy(this.gameObject);
     }
 
+    /// <summary>
+    /// Sets material values so it is possible to make the object fadeaway.
+    /// </summary>
     void changeModeToFade()
     {
-        meshrend.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-        meshrend.material.SetFloat("_Mode", 2);
-        meshrend.material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-        meshrend.material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-        meshrend.material.SetInt("_ZWrite", 0);
-        meshrend.material.DisableKeyword("_ALPHATEST_ON");
-        meshrend.material.EnableKeyword("_ALPHABLEND_ON");
-        meshrend.material.DisableKeyword("_ALPHAPREMULTIPLY_ON");
-        meshrend.material.renderQueue = 3000;
+        meshRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        meshRenderer.material.SetFloat("_Mode", 2);
+        meshRenderer.material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+        meshRenderer.material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+        meshRenderer.material.SetInt("_ZWrite", 0);
+        meshRenderer.material.DisableKeyword("_ALPHATEST_ON");
+        meshRenderer.material.EnableKeyword("_ALPHABLEND_ON");
+        meshRenderer.material.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+        meshRenderer.material.renderQueue = 3000;
     }
 }

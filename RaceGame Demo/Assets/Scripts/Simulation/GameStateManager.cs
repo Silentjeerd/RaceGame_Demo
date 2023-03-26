@@ -11,10 +11,6 @@ using UnityEngine.SceneManagement;
 /// </summary>
 public class GameStateManager : MonoBehaviour
 {
-    #region Members
-    // The camera object, to be referenced in Unity Editor.
-    [SerializeField]
-    private CameraMovement Camera;
 
     // The name of the track to be loaded
     [SerializeField]
@@ -35,10 +31,8 @@ public class GameStateManager : MonoBehaviour
         private set;
     }
 
-    private CarController prevBest, prevSecondBest;
-    #endregion
+    private AICarController prevBest, prevSecondBest;
 
-    #region Constructors
     private void Awake()
     {
         if (Instance != null)
@@ -57,22 +51,7 @@ public class GameStateManager : MonoBehaviour
 
     void Start ()
     {
-        TrackManager.Instance.BestCarChanged += OnBestCarChanged;
         EvolutionManager.Instance.StartEvolution();
 	}
-    #endregion
 
-    #region Methods
-    // Callback method for when the best car has changed.
-    private void OnBestCarChanged(CarController bestCar)
-    {
-        if (bestCar == null)
-            Camera.SetTarget(null);
-        else
-            Camera.SetTarget(bestCar.gameObject);
-            
-        if (UIController != null)
-            UIController.SetDisplayTarget(bestCar);
-    }
-    #endregion
 }

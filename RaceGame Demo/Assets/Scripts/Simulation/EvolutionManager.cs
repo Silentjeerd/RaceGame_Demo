@@ -14,7 +14,7 @@ using System.IO;
 /// </summary>
 public class EvolutionManager : MonoBehaviour
 {
-    #region Members
+
     private static System.Random randomizer = new System.Random();
 
     public static EvolutionManager Instance
@@ -25,21 +25,21 @@ public class EvolutionManager : MonoBehaviour
 
     // Whether or not the results of each generation shall be written to file, to be set in Unity Editor
     [SerializeField]
-    private bool SaveStatistics = false;
+    private bool SaveStatistics = true;
     private string statisticsFileName;
 
     // How many of the first to finish the course should be saved to file, to be set in Unity Editor
     [SerializeField]
-    private uint SaveFirstNGenotype = 0;
+    private uint SaveFirstNGenotype = 2;
     private uint genotypesSaved = 0;
 
     // Population size, to be set in Unity Editor
     [SerializeField]
-    private int PopulationSize = 30;
+    private int PopulationSize = 10;
 
     // After how many generations should the genetic algorithm be restart (0 for never), to be set in Unity Editor
     [SerializeField]
-    private int RestartAfter = 100;
+    private int RestartAfter = 10;
 
     // Whether to use elitist selection or remainder stochastic sampling, to be set in Unity Editor
     [SerializeField]
@@ -74,9 +74,7 @@ public class EvolutionManager : MonoBehaviour
     {
         get { return geneticAlgorithm.GenerationCount; }
     }
-    #endregion
 
-    #region Constructors
     void Awake()
     {
         if (Instance != null)
@@ -84,11 +82,13 @@ public class EvolutionManager : MonoBehaviour
             Debug.LogError("More than one EvolutionManager in the Scene.");
             return;
         }
-        Instance = this;
-    }
-    #endregion
 
-    #region Methods
+        Instance = this;
+        FNNTopology = new uint[] { GameManager.Instance.settings.sensorCount, 8 };
+        PopulationSize = GameManager.Instance.settings.agentCount;
+        RestartAfter = GameManager.Instance.settings.generations;
+    }
+
     /// <summary>
     /// Starts the evolutionary process.
     /// </summary>
@@ -167,7 +167,7 @@ public class EvolutionManager : MonoBehaviour
     {
         if (genotypesSaved >= SaveFirstNGenotype) return;
 
-        string saveFolder = statisticsFileName + "/";
+        string saveFolder = statisticsFileName + "/" + geneticAlgorithm.GenerationCount + "/";
 
         foreach (Genotype genotype in currentPopulation)
         {
@@ -217,20 +217,23 @@ public class EvolutionManager : MonoBehaviour
             agents.Add(new Agent(genotype, MathHelper.SoftSignFunction, FNNTopology));
 
         TrackManager.Instance.SetCarAmount(agents.Count);
-        IEnumerator<CarController> carsEnum = TrackManager.Instance.GetCarEnumerator();
+        IEnumerator<AICarController> carsEnum = TrackManager.Instance.GetCarEnumerator();
+
         for (int i = 0; i < agents.Count; i++)
         {
+
             if (!carsEnum.MoveNext())
             {
                 Debug.LogError("Cars enum ended before agents.");
                 break;
             }
-
             carsEnum.Current.Agent = agents[i];
             AgentsAliveCount++;
             agents[i].AgentDied += OnAgentDied;
         }
-        Debug.Log("Starting Evaluation of generation : " + GenerationCount + " with " + AgentsAliveCount + " agents");
+
+        //append the savefilpath
+        GameManager.Instance.changeSaveFileFolder("Generation" + GenerationCount + "/");
         TrackManager.Instance.Restart();
     }
 
@@ -240,12 +243,11 @@ public class EvolutionManager : MonoBehaviour
         AgentsAliveCount--;
         if (AgentsAliveCount == 0 && AllAgentsDied != null)
         {
-            
             AllAgentsDied();
         }
     }
 
-    #region GA Operators
+
     // Selection operator for the genetic algorithm, using a method called remainder stochastic sampling.
     private List<Genotype> RemainderStochasticSampling(List<Genotype> currentPopulation)
     {
@@ -326,7 +328,5 @@ public class EvolutionManager : MonoBehaviour
                 GeneticAlgorithm.MutateGenotype(genotype, GeneticAlgorithm.DefMutationProb, GeneticAlgorithm.DefMutationAmount);
         }
     }
-    #endregion
-    #endregion
 
     }
